@@ -1,5 +1,5 @@
 # validationTools
-Java classes for retrieving and analyzing constants from CCDB.
+Some common tools developed for CLAS12 software validation, monitoring, and analysis.
 ##Features
 - Create "Collections" of histograms (H1D, H2D) which are automatically binned in 2 or 3 dimensions.
 - Tools for viewing multi-dimensional data.
