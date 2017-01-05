@@ -3,13 +3,13 @@ package binnedPlots;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.root.data.StatNumber;
-import org.root.histogram.H1D;
-import org.root.pad.TGCanvas;
+import org.jlab.groot.data.H1F;
+import org.jlab.groot.math.StatNumber;
+import org.jlab.groot.ui.TCanvas;
 
 // this is a 3D collection of 1D histograms (e.g. p resolution binned in p, theta, and phi)
 
-public class H1DCollection3D {
+public class H1FCollection3D {
 
 	// ------------------- Fields -------------------------------- //
 	// ----------------------------------------------------------- //
@@ -27,13 +27,13 @@ public class H1DCollection3D {
 	private int Nv3Bins; // v3 = variable 3
 	private double v3Min;
 	private double v3Max;
-    private List<List<List<H1D>>> hist = new ArrayList<>();
-    private List<TGCanvas> can = null;
+    private List<List<List<H1F>>> hist = new ArrayList<>();
+    private List<TCanvas> can = null;
 	
 	// ------------------ Constructors --------------------------- //
 	// ----------------------------------------------------------- //
 
-	public H1DCollection3D(String NAME, int nhistbins, double histmin, double histmax, int nv1bins, double v1min, double v1max, int nv2bins, double v2min, double v2max, int nv3bins, double v3min, double v3max) {
+	public H1FCollection3D(String NAME, int nhistbins, double histmin, double histmax, int nv1bins, double v1min, double v1max, int nv2bins, double v2min, double v2max, int nv3bins, double v3min, double v3max) {
 		name = NAME;
 		NhistBins = nhistbins;
 		histMin = histmin;
@@ -56,7 +56,7 @@ public class H1DCollection3D {
 				hist.get(j).add(new ArrayList<>());
 				for(int m = 0; m < Nv3Bins; m++)
 				{
-					hist.get(j).get(k).add(new H1D(String.format("%s_%d_%d_%d", name, j, k, m), String.format("%s_%d_%d_%d", name, j, k, m), NhistBins, histMin, histMax));
+					hist.get(j).get(k).add(new H1F(String.format("%s_%d_%d_%d", name, j, k, m), String.format("%s_%d_%d_%d", name, j, k, m), NhistBins, histMin, histMax));
 				}
 			}
 		}
@@ -117,8 +117,8 @@ public class H1DCollection3D {
 		return v3Max;
 	}
 	
-	public H1D getHistogram(int index1, int index2, int index3){
-		H1D result = null;
+	public H1F getHistogram(int index1, int index2, int index3){
+		H1F result = null;
 
 		if(index1 < 0 || index1 >= Nv1Bins || index2 < 0 || index2 >= Nv2Bins || index3 < 0 || index3 >= Nv3Bins)
 		{
@@ -144,7 +144,8 @@ public class H1DCollection3D {
 
 		for(int m = 0; m < Nv3Bins; m++)
 		{
-			can.add(new TGCanvas(String.format("%s_can_%d", name, m), String.format("%s_can_%d", name, m), 1000, 750, Nv1Bins, Nv2Bins));
+			can.add(new TCanvas(String.format("%s_can_%d", name, m), 1000, 750));
+			can.get(m).divide(Nv1Bins, Nv2Bins);
 			for(int j = 0; j < Nv1Bins; j++)
 			{
 				for(int k = 0; k < Nv2Bins; k++)
@@ -158,8 +159,8 @@ public class H1DCollection3D {
 
 	}
 
-	// return a H1DCollection3D that is the ratios of the two parameters (must be same binning scheme)
-	public static H1DCollection3D divide(H1DCollection3D num, H1DCollection3D den){
+	// return a H1FCollection3D that is the ratios of the two parameters (must be same binning scheme)
+	public static H1FCollection3D divide(H1FCollection3D num, H1FCollection3D den){
 
 		if(num.getNhistBins() != den.getNhistBins() || num.getHistMin() != den.getHistMin() || num.getHistMax() != den.getHistMax() || num.getNv1Bins() != den.getNv1Bins() || num.getNv2Bins() != den.getNv2Bins() || num.getNv3Bins() != den.getNv3Bins())
 		{
@@ -168,7 +169,7 @@ public class H1DCollection3D {
 			return null;
 		}
 		
-		H1DCollection3D answer = new H1DCollection3D(num.getName()+"_DIV", num.getNhistBins(), num.getHistMin(), num.getHistMax(), num.getNv1Bins(), num.getV1Min(), num.getV1Max(), num.getNv2Bins(), num.getV2Min(), num.getV2Max(), num.getNv3Bins(), num.getV3Min(), num.getV3Max());
+		H1FCollection3D answer = new H1FCollection3D(num.getName()+"_DIV", num.getNhistBins(), num.getHistMin(), num.getHistMax(), num.getNv1Bins(), num.getV1Min(), num.getV1Max(), num.getNv2Bins(), num.getV2Min(), num.getV2Max(), num.getNv3Bins(), num.getV3Min(), num.getV3Max());
 		
 		StatNumber result = new StatNumber();
 		StatNumber denom = new StatNumber();

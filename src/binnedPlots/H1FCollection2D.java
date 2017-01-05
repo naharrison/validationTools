@@ -2,13 +2,16 @@ package binnedPlots;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.root.data.StatNumber;
-import org.root.histogram.H1D;
-import org.root.pad.TGCanvas;
 
-// this is a 2D collection of 1D histograms (e.g. p distributions binned in theta and phi)
+import org.jlab.groot.data.H1F;
+import org.jlab.groot.math.StatNumber;
+import org.jlab.groot.ui.TCanvas;
 
-public class H1DCollection2D {
+/**
+ * this is a 2D collection of 1D histograms (e.g. momentum distributions binned in theta and phi)
+ * hist = what's being histogrammed (e.g. momentum); v1 = binning variable 1 (e.g. theta); v2 = binning variable 2 (e.g. phi)
+ */
+public class H1FCollection2D {
 
 	// ------------------- Fields -------------------------------- //
 	// ----------------------------------------------------------- //
@@ -17,19 +20,19 @@ public class H1DCollection2D {
 	private int NhistBins;
 	private double histMin;
 	private double histMax;
-	private int Nv1Bins; // v1 = variable 1
+	private int Nv1Bins;
 	private double v1Min;
 	private double v1Max;
-	private int Nv2Bins; // v2 = variable 2
+	private int Nv2Bins;
 	private double v2Min;
 	private double v2Max;
-    private List<List<H1D>> hist = new ArrayList<>();
-    private TGCanvas can = null;
+    private List<List<H1F>> hist = new ArrayList<>();
+    private TCanvas can = null;
 	
 	// ------------------ Constructors --------------------------- //
 	// ----------------------------------------------------------- //
 
-	public H1DCollection2D(String NAME, int nhistbins, double histmin, double histmax, int nv1bins, double v1min, double v1max, int nv2bins, double v2min, double v2max) {
+	public H1FCollection2D(String NAME, int nhistbins, double histmin, double histmax, int nv1bins, double v1min, double v1max, int nv2bins, double v2min, double v2max) {
 		name = NAME;
 		NhistBins = nhistbins;
 		histMin = histmin;
@@ -46,7 +49,7 @@ public class H1DCollection2D {
 			hist.add(new ArrayList<>());
 			for(int k = 0; k < Nv2Bins; k++)
 			{
-				hist.get(j).add(new H1D(String.format("%s_%d_%d", name, j, k), String.format("%s_%d_%d", name, j, k), NhistBins, histMin, histMax));
+				hist.get(j).add(new H1F(String.format("%s_%d_%d", name, j, k), String.format("%s_%d_%d", name, j, k), NhistBins, histMin, histMax));
 			}
 		}
 	}
@@ -94,8 +97,8 @@ public class H1DCollection2D {
 		return v2Max;
 	}
 	
-	public H1D getHistogram(int index1, int index2){
-		H1D result = null;
+	public H1F getHistogram(int index1, int index2){
+		H1F result = null;
 
 		if(index1 < 0 || index1 >= Nv1Bins || index2 < 0 || index2 >= Nv2Bins)
 		{
@@ -118,7 +121,8 @@ public class H1DCollection2D {
 	// draw all the plots on a canvas
 	public void draw(){
 
-		can = new TGCanvas(name+"_can", name+"_can", 1000, 750, Nv1Bins, Nv2Bins);
+		can = new TCanvas(name+"_can", 1000, 750);
+		can.divide(Nv1Bins, Nv2Bins);
 
 		for(int j = 0; j < Nv1Bins; j++)
 		{
@@ -130,8 +134,8 @@ public class H1DCollection2D {
 		}
 	}
 
-	// return a H1DCollection2D that is the ratios of the two parameters (must be same binning scheme)
-	public static H1DCollection2D divide(H1DCollection2D num, H1DCollection2D den){
+	// return a H1FCollection2D that is the ratios of the two parameters (must be same binning scheme)
+	public static H1FCollection2D divide(H1FCollection2D num, H1FCollection2D den){
 
 		if(num.getNhistBins() != den.getNhistBins() || num.getHistMin() != den.getHistMin() || num.getHistMax() != den.getHistMax() || num.getNv1Bins() != den.getNv1Bins() || num.getNv2Bins() != den.getNv2Bins())
 		{
@@ -140,7 +144,7 @@ public class H1DCollection2D {
 			return null;
 		}
 		
-		H1DCollection2D answer = new H1DCollection2D(num.getName()+"_DIV", num.getNhistBins(), num.getHistMin(), num.getHistMax(), num.getNv1Bins(), num.getV1Min(), num.getV1Max(), num.getNv2Bins(), num.getV2Min(), num.getV2Max());
+		H1FCollection2D answer = new H1FCollection2D(num.getName()+"_DIV", num.getNhistBins(), num.getHistMin(), num.getHistMax(), num.getNv1Bins(), num.getV1Min(), num.getV1Max(), num.getNv2Bins(), num.getV2Min(), num.getV2Max());
 		
 		StatNumber result = new StatNumber();
 		StatNumber denom = new StatNumber();
